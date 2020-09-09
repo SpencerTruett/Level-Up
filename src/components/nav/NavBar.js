@@ -7,19 +7,21 @@ export const NavBar = (props) => {
     <>
       {
         localStorage.getItem("levelup_member")
-          ? <li className="navbar__item">
-            <Link className="navbar__link"
-              to=""
-              onClick={e => {
-                e.preventDefault()
-                localStorage.removeItem("levelup_member")
-                props.history.push("/")
-              }}
-            >Logout</Link>
-          </li>
+          ? <div className="logout__link">
+            <li className="navbar__item">
+              <Link className="navbar__link"
+                to=""
+                onClick={e => {
+                  e.preventDefault()
+                  localStorage.removeItem("levelup_member")
+                  props.history.push("/")
+                }}
+              >Logout</Link>
+            </li>
+          </div>
           : ""
       }
-      <ul>
+      <ul className="nav__buttons">
         <li className="navbar">
           <Link className="navbar__link" to="/events">Events</Link>
         </li>
