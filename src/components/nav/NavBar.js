@@ -5,11 +5,20 @@ import "./NavBar.css"
 export const NavBar = (props) => {
   return (
     <>
-      <ul className="navbar">
-        <li className="navbar__item">
-          <Link className="navbar__link" to="/logout">Logout</Link>
-        </li>
-      </ul>
+      {
+        localStorage.getItem("levelup_member")
+          ? <li className="navbar__item">
+            <Link className="navbar__link"
+              to=""
+              onClick={e => {
+                e.preventDefault()
+                localStorage.removeItem("levelup_member")
+                props.history.push("/")
+              }}
+            >Logout</Link>
+          </li>
+          : ""
+      }
       <ul>
         <li className="navbar">
           <Link className="navbar__link" to="/events">Events</Link>
