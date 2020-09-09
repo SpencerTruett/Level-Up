@@ -1,87 +1,122 @@
-import React, { useContext, useRef } from "react"
+import React, { useContext, useState, useEffect } from "react"
 import { EventContext } from "./EventProvider"
+import { GameContext } from "../game/GameProvider"
 import "./Event.css"
 
 export default props => {
-  const { addEvent } = useContext(EventContext)
-  const title = useRef("")
-  const text = useRef("")
-  const date = useRef("")
-  const event = useRef(0)
+  const { event, addEvent, updateEvent, setEvent } = useContext(EventContext)
+  const { games, getGames } = useContext(GameContext)
+
+
+  const [editMode, editModeChanged] = useState(false)
+
+  useEffect(() => {
+    getGames()
+  }, [])
+
+  useEffect(() => {
+    if ('id' in event) {
+      editModeChanged(true)
+    }
+    else {
+      editModeChanged(false)
+    }
+  }, [event])
+
+  const handleControlledInputChange = (e) => {
+
+    const newEvent = Object.assign({}, event)
+    newEvent[e.target.name] = e.target.value
+    setEvent(newEvent)
+  }
 
   const createNewEvent = () => {
-    const eventId = parseInt(event.current.value)
-    const [a, b, c] = date.current.value.split("-")
-    const dateString = b + "-" + c + "-" + a
+    const [a, b, alpha] = event.date.split("-")
+    const [c, d] = alpha.split("T")
+    const dateString = b + "-" + c + "-" + a + " " + d
 
-    if (eventId === 0) {
-      window.alert("Please select an event")
+    if (editMode) {
+      updateEvent({
+        id: event.id,
+        title: event.title,
+        text: event.text,
+        date: event.date,
+        memberId: parseInt(event.memberId),
+        gameId: parseInt(event.gameId)
+      })
     } else {
       addEvent({
-        title: title.current.value,
-        text: text.current.value,
+        title: event.title,
+        text: event.text,
         date: dateString,
-        memberId: parseInt(localStorage.getItem("levelup_member"))
+        memberId: parseInt(localStorage.getItem("levelup_member")),
+        gameId: parseInt(event.gameId)
       })
-        .then(() => props.history.push("/events"))
     }
+    setEvent({ title: "", text: "", date: "", memberId: 0, gameId: 0 })
   }
 
   return (
-    <form className="eventForm">
-      <h2 className="eventForm__title">New Event</h2>
+    <form className="EventForm">
+      <h2 className="EventForm__title">{editMode ? "Update Event" : "Create Event"}</h2>
       <fieldset>
         <div className="form-group">
-          <label htmlFor="eventTitle">Event title: </label>
-          <input
-            type="text"
-            id="eventTitle"
-            ref={title}
-            required
-            autoFocus
-            className="form-control"
-            placeholder="Event title"
+          <label htmlFor="title">Title: </label>
+          <input type="text" name="title" required autoFocus className="form-control"
+            proptype="varchar"
+            placeholder="Title"
+            value={event.title}
+            onChange={handleControlledInputChange}
           />
         </div>
       </fieldset>
       <fieldset>
         <div className="form-group">
-          <label htmlFor="eventTitle">Event description: </label>
-          <input
-            type="text"
-            id="eventText"
-            ref={text}
-            required
-            autoFocus
-            className="form-control"
-            placeholder="Event description"
+          <label htmlFor="text">Description: </label>
+          <input type="text" name="text" required autoFocus className="form-control"
+            proptype="varchar"
+            placeholder="Description"
+            value={event.text}
+            onChange={handleControlledInputChange}
           />
         </div>
       </fieldset>
       <fieldset>
         <div className="form-group">
-          <label htmlFor="eventTitle">Event date: </label>
-          <input
-            type="date"
-            id="eventText"
-            ref={date}
-            required
-            autoFocus
-            className="form-control"
+          <label htmlFor="name">Date: </label>
+          <input type="datetime-local" name="date" required className="form-control"
+            proptype="varchar"
+            placeholder=""
+            value={event.date}
+            onChange={handleControlledInputChange}
           />
         </div>
       </fieldset>
+      <fieldset>
+        <div className="form-group">
+          <label htmlFor="gameId">Game: </label>
+          <select name="gameId" className="form-control"
+            proptype="int"
+            value={event.gameId}
+            onChange={handleControlledInputChange}>
 
+            <option value="0">Select a game</option>
+            {games.map(g => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </fieldset>
       <button type="submit"
-        onClick={
-          evt => {
-            evt.preventDefault()
-            createNewEvent()
-          }
-        }
+        onClick={evt => {
+          evt.preventDefault()
+          createNewEvent()
+        }}
         className="btn btn-primary">
-        Save Event
-            </button>
-    </form>
+        {editMode ? "Update" : "Save"}
+      </button>
+    </form >
   )
 }

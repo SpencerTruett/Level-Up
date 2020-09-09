@@ -4,6 +4,7 @@ export const EventContext = React.createContext()
 
 export const EventProvider = (props) => {
   const [events, setEvents] = useState([])
+  const [event, setEvent] = useState({})
 
   const getEvents = () => {
     return fetch("http://localhost:8088/events")
@@ -47,7 +48,7 @@ export const EventProvider = (props) => {
 
   return (
     <EventContext.Provider value={{
-      events, addEvent, deleteEvent, updateEvent
+      event, events, addEvent, deleteEvent, updateEvent, setEvent, setEvents, getEvents
     }}>
       {props.children}
     </EventContext.Provider>
